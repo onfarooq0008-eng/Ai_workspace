@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>AI Agent Platform</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="login-screen" class="screen">
+  <form id="login-form" class="login-card">
+    <h1>🤖 AI Agent Platform</h1>
+    <p class="subtle">Sign in to continue</p>
+    <input id="login-username" type="text" placeholder="Username" autocomplete="username" required />
+    <input id="login-password" type="password" placeholder="Password" autocomplete="current-password" required />
+    <button type="submit">Sign in</button>
+    <div id="login-error" class="error-text"></div>
+  </form>
+</div>
+
+<div id="app-screen" class="screen app-layout" style="display:none;">
+  <button id="sidebar-toggle" class="mobile-only icon-btn" aria-label="Menu">☰</button>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header"><span class="brand">🤖 AI Agent Platform</span></div>
+    <button id="new-chat-btn" class="primary-btn">+ New Chat</button>
+    <input id="chat-search" placeholder="Search chats…" class="search-box" />
+    <div id="chat-list" class="chat-list"></div>
+    <nav class="nav-list">
+      <button class="nav-item active" data-view="chat">💬 Chat</button>
+      <button class="nav-item" data-view="office">🏢 Office View</button>
+      <button class="nav-item" data-view="tasks">🗂 Tasks</button>
+      <button class="nav-item" data-view="providers">🔌 API Providers</button>
+      <button class="nav-item" data-view="agents">🧑‍💼 Agents</button>
+      <button class="nav-item" data-view="projects">📁 Projects</button>
+      <button class="nav-item" data-view="files">🗎 Files</button>
+      <button class="nav-item" data-view="activity">📊 Activity</button>
+      <button class="nav-item" data-view="settings">⚙️ Settings</button>
+    </nav>
+    <div class="sidebar-footer">
+      <span id="whoami" class="subtle"></span>
+      <button id="logout-btn" class="link-btn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="main-panel">
+
+    <section id="view-chat" class="view active">
+      <div class="chat-toolbar">
+        <select id="current-chat-select" title="Chat"></select>
+        <select id="project-select" title="Project"></select>
+        <select id="manager-select" title="Manager AI"></select>
+        <select id="mode-select" title="Mode">
+          <option value="chat">Chat Mode</option>
+          <option value="agent">Agent Mode</option>
+          <option value="team">Team Mode</option>
+          <option value="developer">Developer Mode</option>
+          <option value="research">Research Mode</option>
+          <option value="autonomous">Autonomous Mode</option>
+        </select>
+        <button id="stop-btn" class="secondary-btn" style="display:none;">⏹ Stop</button>
+        <button id="resume-btn" class="secondary-btn" style="display:none;">↻ Resume</button>
+        <div class="toolbar-spacer"></div>
+        <button id="chat-export-btn" class="icon-btn" title="Export conversation">⬇</button>
+        <button id="chat-clear-btn" class="icon-btn" title="Clear messages">🗑</button>
+        <button id="theme-toggle" class="icon-btn" title="Toggle theme">🌓</button>
+      </div>
+      <div id="run-banner" class="run-banner" style="display:none;"></div>
+      <div id="messages" class="messages"></div>
+      <div id="cmd-suggest" class="cmd-suggest" style="display:none;"></div>
+      <form id="chat-form" class="chat-input-row">
+        <button type="button" id="attach-btn" class="icon-btn" title="Attach file to project">📎</button>
+        <input id="attach-input" type="file" style="display:none;" />
+        <textarea id="chat-input" rows="1" placeholder="Message the Manager AI… (/ for commands)" required></textarea>
+        <button type="submit" id="send-btn">Send</button>
+      </form>
+    </section>
+
+    <section id="view-office" class="view">
+      <div class="view-header">
+        <h2>🏢 Office View</h2>
+        <span class="subtle" id="office-subtitle">Live — reflects real agent activity, nothing here is scripted.</span>
+      </div>
+      <div id="office-room" class="office-room"></div>
+      <div id="office-feed" class="office-feed"></div>
+    </section>
+
+    <section id="view-tasks" class="view">
+      <div class="view-header">
+        <h2>Tasks</h2>
+        <div><button id="resume-tasks-btn" class="secondary-btn">↻ Resume plan</button> <button id="refresh-tasks-btn" class="secondary-btn">Refresh</button></div>
+      </div>
+      <p class="subtle">Task plan for the current chat. Switch Mode to Team/Developer/Research/Autonomous and send a message to generate one.</p>
+      <div id="task-tree" class="task-tree"></div>
+    </section>
+
+    <section id="view-providers" class="view">
+      <div class="view-header"><h2>API Providers</h2><button id="add-provider-btn" class="primary-btn">+ Add AI Provider</button></div>
+      <div id="providers-list" class="card-grid"></div>
+    </section>
+
+    <section id="view-agents" class="view">
+      <div class="view-header"><h2>Agents</h2><span class="subtle">Assign a specific model to each role, override temperature, or disable a role entirely.</span></div>
+      <div id="agents-list" class="card-grid"></div>
+    </section>
+
+    <section id="view-projects" class="view">
+      <div class="view-header"><h2>Projects</h2><button id="add-project-btn" class="primary-btn">+ New Project</button></div>
+      <div id="projects-list" class="card-grid"></div>
+    </section>
+
+    <section id="view-files" class="view">
+      <div class="view-header"><h2>Files</h2><select id="files-project-select"></select></div>
+      <div class="files-toolbar">
+        <button id="files-upload-btn" class="secondary-btn">⬆ Upload</button>
+        <input id="files-upload-input" type="file" style="display:none;" />
+        <button id="files-export-btn" class="secondary-btn">⬇ Export project (.zip)</button>
+        <button id="files-save-btn" class="secondary-btn" style="display:none;">💾 Save</button>
+      </div>
+      <div class="files-layout">
+        <div id="files-list" class="files-list"></div>
+        <textarea id="files-preview" class="files-preview" spellcheck="false">Select a file to preview or edit its contents.</textarea>
+      </div>
+      <h3 style="margin-top:20px;">Git</h3>
+      <div class="card-actions" style="max-width:300px;margin-bottom:10px;">
+        <button id="git-checkpoint-btn" class="secondary-btn">📌 Checkpoint now</button>
+        <button id="git-diff-btn" class="secondary-btn">Diff</button>
+      </div>
+      <div id="checkpoints-list" class="subtle"></div>
+      <pre id="git-diff-view" class="files-preview" style="display:none;margin-top:10px;max-height:300px;"></pre>
+    </section>
+
+    <section id="view-activity" class="view">
+      <div class="view-header"><h2>Activity &amp; Usage</h2></div>
+      <div id="activity-summary" class="card-grid"></div>
+      <canvas id="usage-chart" height="80"></canvas>
+      <h3 style="margin-top:16px;">Recent requests</h3>
+      <table class="log-table" id="activity-table"><thead><tr><th>Time</th><th>Agent</th><th>Provider</th><th>Model</th><th>In</th><th>Out</th><th>Cost</th><th>Latency</th><th>Status</th></tr></thead><tbody></tbody></table>
+      <h3 style="margin-top:16px;">Audit log</h3>
+      <table class="log-table" id="audit-table"><thead><tr><th>Time</th><th>Event</th><th>Actor</th><th>Detail</th></tr></thead><tbody></tbody></table>
+    </section>
+
+    <section id="view-settings" class="view">
+      <div class="view-header"><h2>Settings</h2><button id="save-settings-btn" class="primary-btn">Save</button></div>
+      <div id="settings-groups"></div>
+      <h3 style="margin-top:24px;">Account &amp; backups</h3>
+      <div class="card-actions" style="max-width:520px;">
+        <button id="change-password-btn" class="secondary-btn">Change password</button>
+        <button id="backup-btn" class="secondary-btn">Create backup</button>
+        <button id="backup-keys-btn" class="secondary-btn">Backup incl. API keys</button>
+        <button id="retention-btn" class="secondary-btn">Apply log retention now</button>
+      </div>
+      <div id="backups-list" class="subtle" style="margin-top:10px;"></div>
+      <h3 style="margin-top:24px;">API Tokens</h3>
+      <p class="subtle">Use for programmatic access via <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+      <div class="card-actions" style="max-width:260px;"><button id="create-token-btn" class="secondary-btn">+ New token</button></div>
+      <div id="tokens-list" class="subtle" style="margin-top:10px;"></div>
+      <h3 style="margin-top:24px;">User memory / preferences</h3>
+      <p class="subtle">Long-term preferences handed to every chat (e.g. "I prefer TypeScript", "always add tests").</p>
+      <div id="user-memory-list"></div>
+      <form id="add-memory-form" class="row-2" style="margin-top:8px;"><input id="add-memory-input" placeholder="Add a preference…" style="flex:1;" /><button class="secondary-btn">Add</button></form>
+    </section>
+
+  </main>
+</div>
+
+<div id="provider-modal" class="modal-overlay" style="display:none;">
+  <form id="provider-form" class="modal-card">
+    <h2 id="provider-modal-title">Add AI Provider</h2>
+    <label>Provider Name <input name="name" required placeholder="NVIDIA AI 1" /></label>
+    <label>Provider Type
+      <select name="provider_type">
+        <option value="openai_compatible">OpenAI Compatible</option>
+        <option value="openrouter">OpenRouter</option>
+        <option value="anthropic">Anthropic</option>
+        <option value="google">Google (Gemini)</option>
+        <option value="custom">Custom</option>
+      </select>
+    </label>
+    <label>Base URL <input name="base_url" placeholder="https://integrate.api.nvidia.com/v1" /></label>
+    <label>API Key <input name="api_key" type="password" placeholder="(leave blank to keep existing key)" /></label>
+    <label>Model <div class="row-2"><input name="model" required placeholder="meta/llama-3.1-70b-instruct" style="flex:1;" /><button type="button" id="discover-models-btn" class="secondary-btn">Discover</button></div></label>
+    <div id="model-suggestions" class="cmd-suggest" style="display:none;position:static;max-height:140px;"></div>
+    <label>Role
+      <select name="role">
+        <option value="any">Any</option><option value="manager">Manager</option><option value="worker">Worker</option>
+        <option value="reviewer">Reviewer</option><option value="coder">Coder</option><option value="researcher">Researcher</option>
+      </select>
+    </label>
+    <label>Capabilities
+      <div id="capabilities-checks" class="checks-grid"></div>
+    </label>
+    <div class="row-2">
+      <label>Temperature <input name="temperature" type="number" step="0.1" min="0" max="2" value="0.3" /></label>
+      <label>Max Tokens <input name="max_tokens" type="number" value="4096" /></label>
+    </div>
+    <div class="row-2">
+      <label>Priority <input name="priority" type="number" value="100" /></label>
+      <label class="checkbox-row"><input name="enabled" type="checkbox" checked /> Enabled</label>
+    </div>
+    <details><summary class="subtle">Limits &amp; pricing (optional)</summary>
+      <div class="row-2"><label>Req/min <input name="requests_per_minute" type="number" placeholder="unlimited" /></label><label>Tokens/min <input name="tokens_per_minute" type="number" placeholder="unlimited" /></label></div>
+      <div class="row-2"><label>Daily request limit <input name="daily_limit" type="number" placeholder="unlimited" /></label><label>Monthly budget ($) <input name="monthly_budget" type="number" step="0.01" placeholder="unlimited" /></label></div>
+      <div class="row-2"><label>$ / 1K input tokens <input name="input_price_per_1k" type="number" step="0.0001" placeholder="unset" /></label><label>$ / 1K output tokens <input name="output_price_per_1k" type="number" step="0.0001" placeholder="unset" /></label></div>
+    </details>
+    <div class="modal-actions">
+      <button type="button" id="provider-test-btn" class="secondary-btn">Test connection</button>
+      <span id="provider-test-result" class="subtle"></span>
+      <div style="flex:1;"></div>
+      <button type="button" id="provider-cancel-btn" class="secondary-btn">Cancel</button>
+      <button type="submit" class="primary-btn">Save Provider</button>
+    </div>
+  </form>
+</div>
+
+<div id="confirm-modal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <h2 id="confirm-title">Are you sure?</h2>
+    <p id="confirm-body" class="subtle"></p>
+    <div class="modal-actions">
+      <button type="button" id="confirm-cancel-btn" class="secondary-btn">Cancel</button>
+      <button type="button" id="confirm-ok-btn" class="primary-btn" style="background:var(--danger);">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/core.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/events.js"></script>
+<script src="/js/approvals.js"></script>
+<script src="/js/chat.js"></script>
+<script src="/js/commands.js"></script>
+<script src="/js/providers.js"></script>
+<script src="/js/agents.js"></script>
+<script src="/js/projects.js"></script>
+<script src="/js/files.js"></script>
+<script src="/js/tasks.js"></script>
+<script src="/js/activity.js"></script>
+<script src="/js/settings.js"></script>
+<script src="/js/office.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

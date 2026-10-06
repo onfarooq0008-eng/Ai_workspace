@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/.env
+**/data
+**/workspaces
+**/logs
+.git
+*.zip
+README.md
+deploy
+scripts
+install.sh
+update.sh

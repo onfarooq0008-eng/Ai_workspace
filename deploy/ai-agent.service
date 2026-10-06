@@ -1,0 +1,24 @@
+[Unit]
+Description=AI Agent Platform
+After=network.target
+
+[Service]
+Type=simple
+User=aiagent
+WorkingDirectory=/opt/ai-agent/backend
+EnvironmentFile=/opt/ai-agent/backend/.env
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=5
+# Keep memory in check on a 1GB VPS
+MemoryMax=600M
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/ai-agent/backend/data /opt/ai-agent/backend/workspaces /opt/ai-agent/backend/logs
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
